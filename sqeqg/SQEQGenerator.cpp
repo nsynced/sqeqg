@@ -29,9 +29,9 @@ void SQEQGenerator::StartLoop() const
 	while (true) {
 		system(WINDOWS_CLEAR_SCREEN_COMMAND);
 		task = getTask();
-		std::cout << "Task: " << task.first << "; x1 = ?, x2 = ?" << std::endl;
+		std::cout << task.first << std::endl;
 		system(WINDOWS_PAUSE_COMMAND);
-		std::cout << "Answer: " << task.second << std::endl;
+		std::cout << task.second << std::endl;
 		system(WINDOWS_PAUSE_COMMAND);
 	}
 }
@@ -69,8 +69,7 @@ int SQEQGenerator::getRandomSignedNumInRange(int min, int max) const
 	int x = (min - 1) + (rand() % (max - min + 1));
 
 	/* Get a random sign for x with probability 1/2 */
-	int sign = rand() % 10;
-	if (sign >= 5 && sign <= 9)
+	if (rand() % 2)
 		x = -x;
 
 	return x;
