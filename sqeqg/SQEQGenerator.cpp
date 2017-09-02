@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <ctime>
 #include <cmath>
 #include <sstream>
@@ -16,13 +17,31 @@
 SQEQGenerator::SQEQGenerator()
 {
 	srand((unsigned int)time(NULL));
+	setMode();
+
 	ENTER_MAX_VALUE("x1", MaxX1);
 	ENTER_MAX_VALUE("x2", MaxX2);
 	ENTER_MAX_VALUE("a", MaxA);
+	
+	if (mode == SQEQGenerator::Mode::OneByOne)
+		oneByOneMode();
+	else listMode();
+}
+
+void SQEQGenerator::setMode()
+{
+	int in;
+	
+	do { 
+		std::cout << "Choose mode(OneByOne = 0, List = 1) and press Enter: ";
+		std::cin >> in;
+	} while(in != 0 && in != 1);
+
+	mode = SQEQGenerator::Mode(in);
 }
 
 /* Start a print task -> print the answer loop  */
-void SQEQGenerator::StartLoop() const
+void SQEQGenerator::oneByOneMode() const
 {
 	std::pair<std::string, std::string> task;
 
@@ -34,6 +53,43 @@ void SQEQGenerator::StartLoop() const
 		std::cout << task.second << std::endl;
 		system(WINDOWS_PAUSE_COMMAND);
 	}
+}
+
+void SQEQGenerator::listMode() const
+{
+	unsigned int n, withAnswers;
+	std::pair<std::string, std::string> task;
+	std::string fname;
+	
+	std::cout << "Enter file name: ";
+	std::cin >> fname;
+	std::cout << "Enter n: ";
+	std::cin >> n;
+	
+	do {
+		std::cout << "With answers? Enter(0 - NO, 1 - YES) and press Enter: ";
+		std::cin >> withAnswers;
+	} while (withAnswers != 0 && withAnswers != 1);
+
+	std::ofstream outf(fname);
+
+	if(!outf.is_open()) {
+		std::cout << "Can't open " << fname << " file" << std::endl;
+		return;
+	}
+
+	while(n--) {
+		task = getTask();
+		outf << task.first << std::endl;
+		if(withAnswers)
+			outf << task.second << std::endl;
+		outf << std::endl;
+	}
+
+	std::cout << "Done." << std::endl;
+
+	outf.flush();
+	outf.close();
 }
 
 /* It generates a full quadratic equation + the answer
