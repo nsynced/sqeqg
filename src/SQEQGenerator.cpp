@@ -138,7 +138,7 @@ std::pair<std::string, std::string> SQEQGenerator::GetTask() const
 //                                           >=		<= 
 int SQEQGenerator::GetRandomSignedNumInRange(int min, int max) const
 {
-	int x = (min - 1) + (rand() % (max - min + 1));
+	int x = min + (rand() % (max - min + 1));
 
 	/* Get a random sign for x with probability 1/2 */
 	if (rand() % 2)
