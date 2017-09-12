@@ -10,4 +10,4 @@ You can set maximum values of **x₁**, **x₂** and the **a** coefficient.
 * Make sure that you've installed CMake and GCC (or Clang)
 * Clone this repository 
 * Go to sqeqg folder
-* ```$ cmake && make```
+* ```$ cmake . && make```
