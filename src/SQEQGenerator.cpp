@@ -122,11 +122,11 @@ std::pair<std::string, std::string> SQEQGenerator::GetTask() const
 
 	x1 = GetRandomSignedNumInRange(X1_MIN_VALUE, MaxX1);
 	x2 = GetRandomSignedNumInRange(X2_MIN_VALUE, MaxX2 - 1);
- 	if(x2 == -x1) // Exclude incomplete equations
+	if(x2 == -x1) // Exclude incomplete equations
 		x2 = MaxX2;
 	a = GetRandomSignedNumInRange(A_MIN_VALUE, MaxA);
 	b = -a*(x1 + x2);
-	c = -a * x1 * x2;
+	c = a * x1 * x2;
 
 	task << a << "x^2 ";
 	task << GetSignOfNumber(b) << " " << abs(b) << "x ";
