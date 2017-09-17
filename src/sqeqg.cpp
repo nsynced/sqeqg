@@ -1,8 +1,9 @@
 #include "SQEQGenerator.h"
 
-int main()
+int main(int argc, char *argv[])
 {
-	SQEQGenerator generator;
-
+	SQEQGenerator sqeqg;
+	sqeqg.Run(argc, argv);
+	
 	return 0;
 }

@@ -3,6 +3,7 @@
 #include <ctime>
 #include <cmath>
 #include <sstream>
+#include <cxxopts.hpp>
 
 #include "SQEQGenerator.h"
 
@@ -15,45 +16,57 @@
 SQEQGenerator::SQEQGenerator()
 {
 	srand((unsigned int)time(NULL));
-	SetMode();
-	SetMaxValues();
-
-	if (CurrentMode == SQEQGenerator::Mode::OneByOne)
-		OneByOneMode();
-	else ListMode();
+	outputFileName = "";
+	number = 1;
+	printSolutions = false;
+	maxA = 5;
+	maxX = 15;
 }
 
-void SQEQGenerator::SetMode()
-{
-	int in;
+void SQEQGenerator::Run(int argc, char *argv[]) {
+	this->argc = argc;
+	this->argv = argv;
+	HandleArgs();
 
-	do {
-		std::cout << "Choose mode(OneByOne = 0, List = 1): ";
-		std::cin >> in;
-	} while(in != 0 && in != 1);
-
-	CurrentMode = SQEQGenerator::Mode(in);
+	if(mode == SQEQGenerator::Mode::List)
+		ListMode();
+	else OneByOneMode();
 }
 
-void SQEQGenerator::SetMaxValues()
-{
-	do
-	{
-		std::cout << "Enter maximum value of x1(> " << X1_MIN_VALUE << "): ";
-		std::cin >> MaxX1;
-	} while(MaxX1 <= X1_MIN_VALUE);
+/* Handles command line arguments and returns true if
+ *  successful but false otherwise */
+bool SQEQGenerator::HandleArgs() {
+	try {
+		cxxopts::Options options(argv[0], "Simple Quadratic Equation Generator");
+		options.add_options()
+			("l,list", "Enables list mode")
+			("h,help", "Shows this page")
+			("x,max-x", "Sets the maximum value of X1,X2", cxxopts::value<int>(maxX))
+			("a,max-a", "Sets the maximum value of the A coefficient", cxxopts::value<int>(maxA))
+			("f,file", "Sets output file name", cxxopts::value<std::string>(outputFileName))
+		;
+		options.add_options("List mode only")
+			("s,print-solutions", "Prints tasks with solutions", cxxopts::value<bool>(printSolutions))
+			("n,number", "Sets the number of tasks to be written", cxxopts::value<unsigned int>(number))
+		;
+		options.parse(argc, argv);
 
-	do
-	{
-		std::cout << "Enter maximum value of x2(> " << X2_MIN_VALUE << "): ";
-		std::cin >> MaxX2;
-	} while(MaxX2 <= X2_MIN_VALUE);
+		if(options.count("help")) {
+			std::cout << options.help({"", "List mode only"}) << std::endl;
+			exit(0);
+		}
 
-	do
-	{
-		std::cout << "Enter maximum value of a(> " << A_MIN_VALUE << "): ";
-		std::cin >> MaxA;
-	} while(MaxA <= A_MIN_VALUE);
+		if(options.count("list"))
+			mode = SQEQGenerator::Mode::List;
+		else mode = SQEQGenerator::Mode::OneByOne;
+
+	}
+	catch (const cxxopts::OptionException& e) {
+		std::cout << "Error parsing options: " << e.what() << std::endl;
+		exit(1);
+	}
+
+	return true;
 }
 
 /* Start a print task -> print the answer loop  */
@@ -73,39 +86,28 @@ void SQEQGenerator::OneByOneMode() const
 
 void SQEQGenerator::ListMode() const
 {
-	unsigned int n, withAnswers;
+	unsigned int n = number;
 	std::pair<std::string, std::string> task;
-	std::string fname;
-
-	std::cout << "Enter file name: ";
-	std::cin >> fname;
-	std::cout << "Enter n: ";
-	std::cin >> n;
-
-	do {
-		std::cout << "With answers? Enter(0 - NO, 1 - YES) and press Enter: ";
-		std::cin >> withAnswers;
-	} while (withAnswers != 0 && withAnswers != 1);
-
-	std::ofstream outf(fname);
+	std::ofstream outf(outputFileName);
 
 	if(!outf.is_open()) {
-		std::cout << "Can't open " << fname << " file" << std::endl;
-		return;
+		std::cout << "Can't open " << outputFileName << " file" << std::endl;
+		exit(1);
 	}
 
 	while(n--) {
 		task = GetTask();
 		outf << task.first << std::endl;
-		if(withAnswers)
+		if(printSolutions)
 			outf << task.second << std::endl;
 		outf << std::endl;
 	}
 
-	std::cout << "Done." << std::endl;
-
 	outf.flush();
 	outf.close();
+
+	std::cout << "Done!" << std::endl;
+	exit(0);
 }
 
 /* It generates a full quadratic equation + the answer
@@ -120,11 +122,11 @@ std::pair<std::string, std::string> SQEQGenerator::GetTask() const
 	int x1, x2, a, b, c;
 	std::stringstream task, answer;
 
-	x1 = GetRandomSignedNumInRange(X1_MIN_VALUE, MaxX1);
-	x2 = GetRandomSignedNumInRange(X2_MIN_VALUE, MaxX2 - 1);
+	x1 = GetRandomSignedNumInRange(X1_MIN_VALUE, maxX);
+	x2 = GetRandomSignedNumInRange(X2_MIN_VALUE, maxX - 1);
 	if(x2 == -x1) // Exclude incomplete equations
-		x2 = MaxX2;
-	a = GetRandomSignedNumInRange(A_MIN_VALUE, MaxA);
+		x2 = maxX;
+	a = GetRandomSignedNumInRange(A_MIN_VALUE, maxA);
 	b = -a*(x1 + x2);
 	c = a * x1 * x2;
 
