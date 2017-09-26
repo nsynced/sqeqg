@@ -9,10 +9,6 @@
 
 #define CLEAR_SCREEN_COMMAND "clear"
 
-#define A_MIN_VALUE 1
-#define X1_MIN_VALUE 5
-#define X2_MIN_VALUE X1_MIN_VALUE
-
 SQEQGenerator::SQEQGenerator()
 {
 	srand((unsigned int)time(NULL));
@@ -28,13 +24,13 @@ void SQEQGenerator::Run(int argc, char *argv[]) {
 	this->argv = argv;
 	HandleArgs();
 
-	if(mode == SQEQGenerator::Mode::List)
+	if (mode == SQEQGenerator::Mode::List)
 		ListMode();
 	else OneByOneMode();
 }
 
 /* Handles command line arguments and returns true if
- *  successful but false otherwise */
+ * successful but false otherwise */
 bool SQEQGenerator::HandleArgs() {
 	try {
 		cxxopts::Options options(argv[0], "Simple Quadratic Equation Generator");
@@ -44,19 +40,19 @@ bool SQEQGenerator::HandleArgs() {
 			("x,max-x", "Sets the maximum value of X1,X2", cxxopts::value<int>(maxX))
 			("a,max-a", "Sets the maximum value of the A coefficient", cxxopts::value<int>(maxA))
 			("f,file", "Sets output file name", cxxopts::value<std::string>(outputFileName))
-		;
+			;
 		options.add_options("List mode only")
 			("s,print-solutions", "Prints tasks with solutions", cxxopts::value<bool>(printSolutions))
 			("n,number", "Sets the number of tasks to be written", cxxopts::value<unsigned int>(number))
-		;
+			;
 		options.parse(argc, argv);
 
-		if(options.count("help")) {
-			std::cout << options.help({"", "List mode only"}) << std::endl;
+		if (options.count("help")) {
+			std::cout << options.help({ "", "List mode only" }) << std::endl;
 			exit(0);
 		}
 
-		if(options.count("list"))
+		if (options.count("list"))
 			mode = SQEQGenerator::Mode::List;
 		else mode = SQEQGenerator::Mode::OneByOne;
 
@@ -90,15 +86,15 @@ void SQEQGenerator::ListMode() const
 	std::pair<std::string, std::string> task;
 	std::ofstream outf(outputFileName);
 
-	if(!outf.is_open()) {
+	if (!outf.is_open()) {
 		std::cout << "Can't open " << outputFileName << " file" << std::endl;
 		exit(1);
 	}
 
-	while(n--) {
+	while (n--) {
 		task = GetTask();
 		outf << task.first << std::endl;
-		if(printSolutions)
+		if (printSolutions)
 			outf << task.second << std::endl;
 		outf << std::endl;
 	}
@@ -111,22 +107,22 @@ void SQEQGenerator::ListMode() const
 }
 
 /* It generates a full quadratic equation + the answer
-	a*x^2 + b*x + c = 0 <=> a(x - x1)(x - x2) = 0
-	b = -a(x1 + x2)
-	c = -a(x1 * x2)
-	{ x1 + x2 = -b
-	{ x1 * x2 = c
+a*x^2 + b*x + c = 0 <=> a(x - x1)(x - x2) = 0
+b = -a(x1 + x2)
+c = -a(x1 * x2)
+{ x1 + x2 = -b
+{ x1 * x2 = c
 */
 std::pair<std::string, std::string> SQEQGenerator::GetTask() const
 {
 	int x1, x2, a, b, c;
 	std::stringstream task, answer;
 
-	x1 = GetRandomSignedNumInRange(X1_MIN_VALUE, maxX);
-	x2 = GetRandomSignedNumInRange(X2_MIN_VALUE, maxX - 1);
-	if(x2 == -x1) // Exclude incomplete equations
+	x1 = GetRandomSignedNumInRange(-maxX, maxX);
+	x2 = GetRandomSignedNumInRange(-maxX, maxX - 1);
+	if (x2 == -x1) // Exclude incomplete equations
 		x2 = maxX;
-	a = GetRandomSignedNumInRange(A_MIN_VALUE, maxA);
+	a = GetRandomSignedNumInRange(-maxA, maxA);
 	b = -a*(x1 + x2);
 	c = a * x1 * x2;
 
@@ -139,15 +135,11 @@ std::pair<std::string, std::string> SQEQGenerator::GetTask() const
 }
 
 // Generates a random signed number with a random sign in the given range
-//                                           >=		<= 
+//                                           >=         <=
 int SQEQGenerator::GetRandomSignedNumInRange(int min, int max) const
 {
-	int x = min + (rand() % (max - min + 1));
-
-	/* Get a random sign for x with probability 1/2 */
-	if (rand() % 2)
-		x = -x;
-
+	unsigned range = (max + 1) - min;
+	int x = min + rand() % range;
 	return x;
 }
 
