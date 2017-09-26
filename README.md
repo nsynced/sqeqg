@@ -2,7 +2,7 @@
 Simple Quadratic Equation Generator
 
 ## Description
-**sqeqg** — a simple console application that's written in C++ for generating full quadratic equations.
+**sqeqg** — a simple console application that's written in C++ for generating complete quadratic equations.
 You can set maximum values of **x₁**, **x₂** and the **a** coefficient. Type ```$ ./sqeqg -h``` for help.
 
 ## Installation
