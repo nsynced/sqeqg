@@ -26,7 +26,9 @@ SQEQGenerator::SQEQGenerator()
 void SQEQGenerator::Run(int argc, char *argv[]) {
 	this->argc = argc;
 	this->argv = argv;
-	HandleArgs();
+
+	if(!HandleArgs())
+		exit(1);
 
 	if(mode == SQEQGenerator::Mode::List)
 		ListMode();
@@ -63,7 +65,7 @@ bool SQEQGenerator::HandleArgs() {
 	}
 	catch (const cxxopts::OptionException& e) {
 		std::cout << "Error parsing options: " << e.what() << std::endl;
-		exit(1);
+		return false;
 	}
 
 	return true;
@@ -130,7 +132,7 @@ std::pair<std::string, std::string> SQEQGenerator::GetTask() const
 	b = -a*(x1 + x2);
 	c = a * x1 * x2;
 
-	task << a << "x^2 ";
+	task << GetSignOfNumber(a) << abs(a) << "x^2 ";
 	task << GetSignOfNumber(b) << " " << abs(b) << "x ";
 	task << GetSignOfNumber(c) << " " << abs(c) << " = 0";
 	answer << "x1 = " << x1 << ", x2 = " << x2;
