@@ -75,7 +75,7 @@ void SQEQGenerator::OneByOneMode() const
 	while (true) {
 		system(CLEAR_SCREEN_COMMAND);
 		task = GetTask();
-		std::cout << task.first << std::endl;
+		std::cout << task.first;
 		getchar();
 		std::cout << task.second << std::endl;
 		getchar();
@@ -98,7 +98,6 @@ void SQEQGenerator::ListMode() const
 		outf << task.first << std::endl;
 		if (printSolutions)
 			outf << task.second << std::endl;
-		outf << std::endl;
 	}
 
 	outf.flush();
