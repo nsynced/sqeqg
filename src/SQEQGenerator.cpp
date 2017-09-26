@@ -140,7 +140,12 @@ std::pair<std::string, std::string> SQEQGenerator::GetTask() const
 int SQEQGenerator::GetRandomSignedNumInRange(int min, int max) const
 {
 	unsigned range = (max + 1) - min;
+re:
 	int x = min + rand() % range;
+
+	if(!x)
+		goto re;
+
 	return x;
 }
 
