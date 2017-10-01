@@ -7,7 +7,13 @@
 
 #include "SQEQGenerator.h"
 
+#if (defined __MINGW32__ || defined __MINGW64__)
+#define CLEAR_SCREEN_COMMAND "cls"
+#elif __GNUC__
 #define CLEAR_SCREEN_COMMAND "clear"
+#else
+#define CLEAR_SCREEN_COMMAND ""
+#endif
 
 SQEQGenerator::SQEQGenerator()
 {
